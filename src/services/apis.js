@@ -1,5 +1,14 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL
 
+
+ let BASE_URL = process.env.REACT_APP_BASE_URL;
+// If the environment variable is not set, use a default value
+if (!BASE_URL) {
+  console.warn("REACT_APP_BASE_URL is not set, using default value.");
+}
+// If the BASE_URL is not set, you can set a default value here
+if (!BASE_URL) {
+  BASE_URL = "http://localhost:4000/api/v1"; // Default value
+}
 // AUTH ENDPOINTS
 export const endpoints = {
   SENDOTP_API: BASE_URL + "/auth/sendotp",

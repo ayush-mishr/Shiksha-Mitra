@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt")
+
 const User = require("../models/User")
 const OTP = require("../models/OTP")
 const jwt = require("jsonwebtoken")
@@ -57,7 +58,7 @@ exports.signup = async (req, res) => {
 
     // Find the most recent OTP for the email
     const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1)
-    console.log(response)
+    console.log(response);
     if (response.length === 0) {
       // OTP not found for the email
       return res.status(400).json({
@@ -138,7 +139,7 @@ exports.login = async (req, res) => {
         message: `User is not Registered with Us Please SignUp to Continue`,
       })
     }
-
+   console.log("yaha tak aaya hai bhai");
     // Generate JWT token and Compare Password
     if (await bcrypt.compare(password, user.password)) {
       const token = jwt.sign(

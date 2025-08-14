@@ -14,6 +14,7 @@ import HighlightText from "../components/core/HomePage/HighlightText"
 import InstructorSection from "../components/core/HomePage/InstructorSection"
 import LearningLanguageSection from "../components/core/HomePage/LearningLanguageSection"
 import TimelineSection from "../components/core/HomePage/Timeline"
+import { TypeAnimation } from "react-type-animation"
 
 function Home() {
   return (
@@ -32,8 +33,15 @@ function Home() {
 
         {/* Heading */}
         <div className="text-center text-4xl font-semibold">
-          Empower Your Future with
-          <HighlightText text={"Coding Skills"} />
+            <TypeAnimation
+            className="text-pink-100"
+              repeat={Infinity}
+              sequence={['UNLOCK THE NEW HORIZEN TODAY WITH', 2000, ' ']}
+              omitDeletionAnimation={true}
+              style={{ display: 'inline-block' }}
+            />
+      <HighlightText text={" Development Skills"} />
+      
         </div>
 
         {/* Sub Heading */}

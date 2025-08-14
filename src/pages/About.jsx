@@ -1,9 +1,9 @@
 import React from "react"
 
-import FoundingStory from "../assets/Images/FoundingStory.png"
-import BannerImage1 from "../assets/Images/aboutus1.webp"
-import BannerImage2 from "../assets/Images/aboutus2.webp"
-import BannerImage3 from "../assets/Images/aboutus3.webp"
+import FoundingStory from "../assets/Images/FoundingStory.jpg"
+import BannerImage1 from "../assets/Images/aboutus1.jpg"
+import BannerImage2 from "../assets/Images/aboutus2.jpg"
+import BannerImage3 from "../assets/Images/aboutus3.jpg"
 import Footer from "../components/Common/Footer"
 import ReviewSlider from "../components/Common/ReviewSlider"
 import ContactFormSection from "../components/core/AboutPage/ContactFormSection"
@@ -21,7 +21,7 @@ const About = () => {
             Driving Innovation in Online Education for a
             <HighlightText text={"Brighter Future"} />
             <p className="mx-auto mt-3 text-center text-base font-medium text-richblack-300 lg:w-[95%]">
-              Studynotion is at the forefront of driving innovation in online
+              Shiksha Mitra is at the forefront of driving innovation in online
               education. We're passionate about creating a brighter future by
               offering cutting-edge courses, leveraging emerging technologies,
               and nurturing a vibrant learning community.
@@ -29,9 +29,9 @@ const About = () => {
           </header>
           <div className="sm:h-[70px] lg:h-[150px]"></div>
           <div className="absolute bottom-0 left-[50%] grid w-[100%] translate-x-[-50%] translate-y-[30%] grid-cols-3 gap-3 lg:gap-5">
-            <img src={BannerImage1} alt="" />
-            <img src={BannerImage2} alt="" />
-            <img src={BannerImage3} alt="" />
+            <img src={BannerImage1} alt="" className="h-[350px] rounded-sm shadow-pink-50 shadow-md"/>
+            <img src={BannerImage2} alt="" className="h-[350px] w-[500px] rounded-sm shadow-pink-50 shadow-md" />
+            <img src={BannerImage3} alt="" className="h-[350px] rounded-sm shadow-pink-50 shadow-md" />
           </div>
         </div>
       </section>
@@ -72,7 +72,7 @@ const About = () => {
               <img
                 src={FoundingStory}
                 alt=""
-                className="shadow-[0_0_20px_0] shadow-[#FC6767]"
+                className="shadow-[0_0_20px_0] shadow-[#FC6767] h-[300px] rounded-sm"
               />
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import TimeLineImage from "../../../assets/Images/TimelineImage.png";
+import TimeLineImage from "../../../assets/Images/TimelineImage.jpg";
 import Logo1 from "../../../assets/TimeLineLogo/Logo1.svg";
 import Logo2 from "../../../assets/TimeLineLogo/Logo2.svg";
 import Logo3 from "../../../assets/TimeLineLogo/Logo3.svg";
@@ -77,7 +77,7 @@ const TimelineSection = () => {
           <img
             src={TimeLineImage}
             alt="timelineImage"
-            className="shadow-white shadow-[20px_20px_0px_0px] object-cover h-[400px] lg:h-fit"
+            className="shadow-white shadow-[20px_20px_0px_0px] object-cover h-[600px] rounded-sm w-[500px]"
           />
         </div>
       </div>
