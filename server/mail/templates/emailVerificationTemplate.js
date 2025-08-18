@@ -1,3 +1,4 @@
+
 const otpTemplate = (otp) => {
 	return `<!DOCTYPE html>
 	<html>
@@ -67,7 +68,7 @@ const otpTemplate = (otp) => {
 	<body>
 		<div class="container">
 			<a href="https://Shikshamitra-edtech-project.vercel.app"><img class="logo"
-					src="https://i.ibb.co/7Xyj3PC/logo.png" alt="ShikshaMitra  Logo"></a>
+					src="https://res.cloudinary.com/dciv3db5z/image/upload/v1755509776/Screenshot_2025-08-18_142713_a13djx.png" alt="ShikshaMitra  Logo"></a>
 			<div class="message">OTP Verification Email</div>
 			<div class="body">
 				<p>Dear User,</p>

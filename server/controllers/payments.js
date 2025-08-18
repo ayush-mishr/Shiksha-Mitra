@@ -9,12 +9,14 @@ const {
 } = require("../mail/templates/courseEnrollmentEmail")
 const { paymentSuccessEmail } = require("../mail/templates/paymentSuccessEmail")
 const CourseProgress = require("../models/CourseProgress")
+require("dotenv").config()
 
 // Capture the payment and initiate the Razorpay order
 exports.capturePayment = async (req, res) => {
   const { courses } = req.body
   const userId = req.user.id
-  if (courses.length === 0) {
+
+  if (!courses||!Array.isArray(courses)||courses.length === 0) {
     return res.json({ success: false, message: "Please Provide Course ID" })
   }
 
@@ -42,22 +44,24 @@ exports.capturePayment = async (req, res) => {
       }
 
       // Add the price of the course to the total amount
+        
       total_amount += course.price
     } catch (error) {
       console.log(error)
       return res.status(500).json({ success: false, message: error.message })
     }
   }
-
+  const currency = "INR" 
   const options = {
     amount: total_amount * 100,
-    currency: "INR",
+    currency,
     receipt: Math.random(Date.now()).toString(),
   }
 
   try {
     // Initiate the payment using Razorpay
     const paymentResponse = await instance.orders.create(options)
+    
     console.log(paymentResponse)
     res.json({
       success: true,

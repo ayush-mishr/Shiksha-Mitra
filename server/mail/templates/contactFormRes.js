@@ -1,3 +1,4 @@
+
 exports.contactUsEmail = (
   email,
   firstname,
@@ -74,8 +75,8 @@ exports.contactUsEmail = (
   
   <body>
       <div class="container">
-          <a href="https://studynotion-edtech-project.vercel.app"><img class="logo"
-                  src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
+          <a href="https://ShikshaMitra-edtech-project.vercel.app"><img class="logo"
+                  src="https://res.cloudinary.com/dciv3db5z/image/upload/v1755509776/Screenshot_2025-08-18_142713_a13djx.png" alt="Shiksha Mitra Logo"></a>
           <div class="message">Contact Form Confirmation</div>
           <div class="body">
               <p>Dear ${firstname} ${lastname},</p>
