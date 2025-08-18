@@ -7,7 +7,7 @@ if (!BASE_URL) {
 }
 // If the BASE_URL is not set, you can set a default value here
 if (!BASE_URL) {
-  BASE_URL = "http://localhost:4000/api/v1"; // Default value
+  BASE_URL = "https://shiksha-mitra-5sy5.onrender.com/"; // Default value
 }
 // AUTH ENDPOINTS
 export const endpoints = {
