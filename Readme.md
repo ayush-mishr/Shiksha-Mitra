@@ -11,6 +11,8 @@ Modern & responsive design built with React.js
 
 Authentication pages (login/signup)
 
+![alt text](<Screenshot 2025-08-18 215342.png>)
+
 Interactive student dashboard
 
 Course enrollment & progress tracking
@@ -22,6 +24,7 @@ Email confirmation on successful payment
 🛠️ Tech Stack
 
 React.js (Frontend Framework)
+![alt text](<Screenshot 2025-08-18 215239.png>)
 
 Redux Toolkit (State Management)
 
@@ -30,6 +33,7 @@ Tailwind CSS (Styling)
 Axios (API calls)
 
 Razorpay Checkout.js (Payments)
+![alt text](<Screenshot 2025-08-18 215316.png>)
 
 📂 Project Structure
 frontend/
@@ -69,6 +73,7 @@ Run the development server:
 npm start
 
 🔑 Pages
+![alt text](<Screenshot 2025-08-18 215357.png>)
 
 Home Page – Landing page with platform overview
 
