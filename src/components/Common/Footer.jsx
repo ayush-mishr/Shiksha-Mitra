@@ -172,7 +172,7 @@ const Footer = () => {
             })}
           </div>
 
-          <div className="text-center">Made with ❤️ Kushagra © 2023 ShikshaMitra</div>
+          <div className="text-center">Made with ❤️ Ayush mishra © 2023 ShikshaMitra</div>
         </div>
       </div>
     </div>
