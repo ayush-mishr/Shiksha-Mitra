@@ -17,7 +17,7 @@ function ForgotPassword() {
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
+  <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526]">
       {loading ? (
         <div className="spinner"></div>
       ) : (

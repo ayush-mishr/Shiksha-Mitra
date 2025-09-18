@@ -31,7 +31,15 @@ const TimeLine = [
 
 const TimelineSection = () => {
   return (
-    <div>
+    <div className="relative">
+      {/* 3D floating cubes background */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="w-full h-full flex flex-wrap justify-center items-center opacity-20 animate-pulse">
+          {[...Array(6)].map((_,i) => (
+            <div key={i} className={`w-16 h-16 m-4 rounded-2xl bg-gradient-to-br from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] shadow-2xl shadow-[#1FA2FF]/40 transform-gpu rotate-${i*15} scale-110 animate-float${i%2===0?"":"-reverse"}`}></div>
+          ))}
+        </div>
+      </div>
       <div className="flex flex-col lg:flex-row gap-20 mb-20 items-center">
         <div className="lg:w-[45%] flex flex-col gap-14 lg:gap-3">
           {TimeLine.map((ele, i) => {
@@ -42,8 +50,12 @@ const TimelineSection = () => {
                     <img src={ele.Logo} alt="" />
                   </div>
                   <div>
-                    <h2 className="font-semibold text-[18px]">{ele.Heading}</h2>
-                    <p className="text-base">{ele.Description}</p>
+                    <h2 className="font-semibold text-[18px] bg-gradient-to-r from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] text-transparent bg-clip-text">
+                      {ele.Heading}
+                    </h2>
+                    <p className="text-base text-white font-medium" style={{filter:'brightness(1.5)'}}> 
+                      {ele.Description}
+                    </p>
                   </div>
                 </div>
                 <div

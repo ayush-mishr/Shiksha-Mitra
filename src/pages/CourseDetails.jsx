@@ -17,6 +17,12 @@ import GetAvgRating from "../utils/avgRating"
 import Error from "./Error"
 
 function CourseDetails() {
+  // ...existing code...
+  return (
+    <div className="bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526] min-h-screen">
+      {/* ...existing CourseDetails page content... */}
+    </div>
+  )
   const { user } = useSelector((state) => state.profile)
   const { token } = useSelector((state) => state.auth)
   const { loading } = useSelector((state) => state.profile)

@@ -8,6 +8,12 @@ import { sendOtp, signUp } from "../services/operations/authAPI";
 import { useNavigate } from "react-router-dom";
 
 function VerifyEmail() {
+  // ...existing code...
+  return (
+    <div className="bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526] min-h-screen">
+      {/* ...existing VerifyEmail page content... */}
+    </div>
+  )
   const [otp, setOtp] = useState("");
   const { signupData, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -24,12 +30,13 @@ function VerifyEmail() {
   const handleVerifyAndSignup = (e) => {
     e.preventDefault();
     const {
-      accountType,
+      
       firstName,
       lastName,
       email,
       password,
       confirmPassword,
+      accountType,
     } = signupData;
 
     dispatch(

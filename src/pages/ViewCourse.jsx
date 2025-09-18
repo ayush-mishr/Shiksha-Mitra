@@ -13,6 +13,12 @@ import {
 } from "../slices/viewCourseSlice"
 
 export default function ViewCourse() {
+  // ...existing code...
+  return (
+    <div className="bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526] min-h-screen">
+      {/* ...existing ViewCourse page content... */}
+    </div>
+  )
   const { courseId } = useParams()
   const { token } = useSelector((state) => state.auth)
   const dispatch = useDispatch()

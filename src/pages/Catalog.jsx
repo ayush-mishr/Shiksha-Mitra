@@ -18,6 +18,14 @@ function Catalog() {
   const [active, setActive] = useState(1)
   const [catalogPageData, setCatalogPageData] = useState(null)
   const [categoryId, setCategoryId] = useState("")
+
+  // ...existing code...
+
+  return (
+    <div className="bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526] min-h-screen">
+      {/* ...existing Catalog page content... */}
+    </div>
+  )
   // Fetch All Categories
   useEffect(() => {
     (async () => {
