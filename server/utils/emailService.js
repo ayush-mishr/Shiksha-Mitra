@@ -77,22 +77,28 @@ class EmailService {
         try {
           return await this.sendViaGmail(email, subject, htmlBody);
         } catch (gmailError) {
-          // If Gmail fails with ETIMEDOUT on production (Render), try SendGrid as fallback
-          if (process.env.NODE_ENV === "production" && gmailError.code === "ETIMEDOUT") {
-            console.error("\n⚠️ Gmail SMTP failed with ETIMEDOUT (common on Render)");
+          // If Gmail fails with ETIMEDOUT (Render/restricted network), try SendGrid as fallback
+          if (gmailError.code === "ETIMEDOUT") {
+            console.error("\n⚠️ Gmail SMTP failed with ETIMEDOUT (port 587 blocked - common on Render)");
             console.error("   Attempting SendGrid fallback...");
             
             if (process.env.SENDGRID_API_KEY) {
+              console.error(`   ✅ SendGrid API Key found - trying now...`);
               try {
                 return await this.sendViaSendGrid(email, subject, htmlBody);
               } catch (sgError) {
                 console.error("   ❌ SendGrid fallback also failed");
+                console.error(`   Error: ${sgError.message}`);
                 throw sgError;
               }
             } else {
-              console.error("   ❌ SendGrid not configured as fallback");
-              console.error("   💡 Solution: Add SENDGRID_API_KEY to Render environment");
-              throw gmailError;
+              console.error("   ❌ SendGrid API Key not configured!");
+              console.error("   💡 SOLUTION: Add SENDGRID_API_KEY to Render environment variables");
+              console.error("   💡 Steps:");
+              console.error("      1. Go to sendgrid.com and create API key");
+              console.error("      2. Go to Render Dashboard → Environment → Add SENDGRID_API_KEY");
+              console.error("      3. Service will auto-redeploy and use SendGrid");
+              throw new Error("Email failed: Gmail timeout (port 587 blocked) and SendGrid not configured. Add SENDGRID_API_KEY to environment.");
             }
           }
           throw gmailError;
