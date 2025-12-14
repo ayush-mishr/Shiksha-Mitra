@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const otpGenerator = require("otp-generator")
 const mailSender = require("../utils/mailSender")
 const { passwordUpdated } = require("../mail/templates/passwordUpdate")
+const otpTemplate = require("../mail/templates/emailVerificationTemplate")
 const Profile = require("../models/Profile")
 require("dotenv").config()
 
@@ -220,24 +221,38 @@ exports.sendotp = async (req, res) => {
     const otpBody = await OTP.create(otpPayload)
     console.log("OTP Body", otpBody)
 
-    // Send OTP via email
+    // Send OTP via email using template
+    let emailSent = false
     try {
-      await mailSender(
+      console.log(`=== Sending OTP Email ===`)
+      console.log(`Email: ${email}`)
+      console.log(`OTP: ${otp}`)
+      console.log(`MAIL_USER: ${process.env.MAIL_USER}`)
+      
+      const emailResponse = await mailSender(
         email,
-        "Verification Email",
-        `<h1>Please confirm your OTP</h1>
-         <p>Your OTP is: <strong>${otp}</strong></p>
-         <p>This OTP will expire in 10 minutes.</p>`
+        "Shiksha Mitra - Verify Your Email",
+        otpTemplate(otp)
       )
-    } catch (error) {
-      console.log("Error sending OTP email:", error)
-      // Continue despite email error, OTP is still created
+      console.log("Email sent successfully:", emailResponse.messageId)
+      emailSent = true
+    } catch (emailError) {
+      console.error("Error sending OTP email:", emailError.message)
+      console.error("Full error:", emailError)
+      // Still return success if OTP is saved in DB
+      // User can request new OTP if email fails
     }
 
     res.status(200).json({
       success: true,
       message: `OTP Sent Successfully`,
-      otp,
+      otp: otp, // Include for debugging - remove in production
+    })
+  } catch (error) {
+    console.log(error.message)
+    return res.status(500).json({ success: false, error: error.message })
+  }
+}
     })
   } catch (error) {
     console.log(error.message)
