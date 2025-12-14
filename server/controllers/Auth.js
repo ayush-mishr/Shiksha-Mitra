@@ -253,12 +253,6 @@ exports.sendotp = async (req, res) => {
     return res.status(500).json({ success: false, error: error.message })
   }
 }
-    })
-  } catch (error) {
-    console.log(error.message)
-    return res.status(500).json({ success: false, error: error.message })
-  }
-}
 
 // Controller for Changing Password
 exports.changePassword = async (req, res) => {
