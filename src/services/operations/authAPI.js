@@ -15,18 +15,17 @@ const {
 
 export function sendOtp(email, navigate) {
   return async (dispatch) => {
-    const toastId = toast.loading("Sending OTP to your email...")
+    const toastId = toast.loading("Loading...")
     dispatch(setLoading(true))
     try {
-      console.log("\n=== FRONTEND: SENDOTP CALLED ===");
-      console.log("Email:", email);
-      
+   
       const response = await apiConnector("POST", SENDOTP_API, {
         email,
         checkUserPresent:true, // This is to be used in case of signup
       })
       console.log("SENDOTP API RESPONSE............", response);
-      console.log("Email sent status:", response.data.emailSent);
+
+      console.log(response.data.success)
 
       if (!response.data.success) {
         // Log the full response for debugging
@@ -34,37 +33,16 @@ export function sendOtp(email, navigate) {
         throw new Error(response.data.message)
       }
 
-      // Show appropriate message
-      if (response.data.emailSent) {
-        toast.success("OTP sent! Check your email.")
-      } else {
-        toast.success("OTP created! Email may take a moment.")
-      }
-      
-      console.log("About to navigate to /verify-email")
-      dispatch(setLoading(false))
-      toast.dismiss(toastId)
-      
-      // Navigate after dismissing toast
-      setTimeout(() => {
-        navigate("/verify-email")
-      }, 1000)
+      toast.success("OTP Sent Successfully")
+      navigate("/verify-email")
     } catch (error) {
       // Log the error object for more details
       console.error("SENDOTP API ERROR............", error)
-      console.error("SENDOTP ERROR DETAILS:", error?.response?.data?.message || error?.message)
       
-      const errorMessage = error?.response?.data?.message || error?.message || "Could Not Send OTP"
-      
-      if (errorMessage.includes("Already Registered")) {
-        toast.error("This email is already registered. Please login.")
-      } else {
-        toast.error(errorMessage)
-      }
-      
-      dispatch(setLoading(false))
-      toast.dismiss(toastId)
+      toast.error(error?.message || "Could Not Send OTP")
     }
+    dispatch(setLoading(false))
+    toast.dismiss(toastId)
   }
 }
 

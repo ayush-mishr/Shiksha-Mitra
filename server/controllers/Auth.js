@@ -144,7 +144,7 @@ exports.login = async (req, res) => {
     if (await bcrypt.compare(password, user.password)) {
       const token = jwt.sign(
         { email: user.email, id: user._id, accountType: user.accountType },
-        process.env.JWT_SECRETE,
+        process.env.JWT_SECRET || process.env.JWT_SECRETE,
         {
           expiresIn: "24h",
         }
@@ -171,13 +171,11 @@ exports.login = async (req, res) => {
       })
     }
   } catch (error) {
-    console.error("Login Error:", error.message)
-    console.error("Full Error:", error)
+    console.error(error)
     // Return 500 Internal Server Error status code with error message
     return res.status(500).json({
       success: false,
       message: `Login Failure Please Try Again`,
-      error: error.message,
     })
   }
 }
@@ -185,112 +183,65 @@ exports.login = async (req, res) => {
 exports.sendotp = async (req, res) => {
   try {
     const { email } = req.body
-    console.log("\n=== SENDOTP REQUEST ===");
-    console.log("Email:", email);
-
-    // Validate email is provided
-    if (!email) {
-      console.log("Email is missing");
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      })
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      console.log("Invalid email format:", email);
-      return res.status(400).json({
-        success: false,
-        message: "Please provide a valid email address",
-      })
-    }
 
     // Check if user is already present
-    console.log("Checking if user exists...");
+    // Find user with provided email
     const checkUserPresent = await User.findOne({ email })
+    // to be used in case of signup
 
+    // If user found with provided email
     if (checkUserPresent) {
-      console.log("User already registered:", email);
+      // Return 400 Bad Request status code with error message (not 401)
       return res.status(400).json({
         success: false,
         message: `User is Already Registered`,
       })
     }
 
-    // Generate OTP - simplified approach
-    console.log("Generating OTP...");
-    let otp = otpGenerator.generate(6, {
+    var otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
-    });
-    
-    // Check uniqueness with max 3 attempts (faster)
-    let attempts = 0;
-    let result = await OTP.findOne({ otp: otp });
-    
-    while (result && attempts < 3) {
-      console.log(`OTP collision, regenerating... (attempt ${attempts + 1})`);
+    })
+    let result = await OTP.findOne({ otp: otp })
+    console.log("Result is Generate OTP Func")
+    console.log("OTP", otp)
+    console.log("Result", result)
+    // Keep generating OTP until a unique one is found
+    while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
         specialChars: false,
-      });
-      result = await OTP.findOne({ otp: otp });
-      attempts++;
+      })
+      result = await OTP.findOne({ otp: otp })
     }
-    
-    console.log("Generated OTP:", otp);
+    const otpPayload = { email, otp }
+    const otpBody = await OTP.create(otpPayload)
+    console.log("OTP Body", otpBody)
 
-    // Save OTP to database
-    console.log("Saving OTP to database...");
-    const otpPayload = { email, otp };
-    const otpBody = await OTP.create(otpPayload);
-    console.log("OTP saved successfully");
-
-    // Send OTP via email - now with better error handling
-    console.log("Attempting to send email...");
-    let emailSent = false;
-    let emailError = null;
-    
+    // Send OTP via email
     try {
       await mailSender(
         email,
-        "Shiksha Mitra - Verification Code",
-        `<h1>Welcome to Shiksha Mitra</h1>
-         <p>Please verify your email address</p>
-         <h2 style="color: #007bff; font-size: 32px; letter-spacing: 5px;">${otp}</h2>
-         <p>This verification code will expire in 10 minutes.</p>
-         <p>Do not share this code with anyone.</p>`
-      );
-      emailSent = true;
-      console.log("Email sent successfully to:", email);
+        "Verification Email",
+        `<h1>Please confirm your OTP</h1>
+         <p>Your OTP is: <strong>${otp}</strong></p>
+         <p>This OTP will expire in 10 minutes.</p>`
+      )
     } catch (error) {
-      emailError = error.message;
-      console.error("Error sending email:", emailError);
-      console.error("Full email error:", error);
-      // For Render deployment, email might fail but we should still inform user
+      console.log("Error sending OTP email:", error)
+      // Continue despite email error, OTP is still created
     }
 
-    // Return success if OTP was created (email might be delayed)
     res.status(200).json({
       success: true,
-      message: emailSent ? "OTP sent successfully" : "OTP created but email may be delayed",
-      emailSent: emailSent,
-      email: email,
-    });
-    
-    console.log("=== SENDOTP COMPLETE ===");
+      message: `OTP Sent Successfully`,
+      otp,
+    })
   } catch (error) {
-    console.error("SENDOTP ERROR:", error.message);
-    console.error("Full error:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Error occurred while sending OTP",
-      error: error.message 
-    });
+    console.log(error.message)
+    return res.status(500).json({ success: false, error: error.message })
   }
 }
 
