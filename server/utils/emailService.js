@@ -24,18 +24,23 @@ class EmailService {
     console.log("================================");
 
     // Check for SendGrid API Key
-    if (process.env.SENDGRID_API_KEY) {
+    const sendgridKey = process.env.SENDGRID_API_KEY;
+    console.log(`   Checking SENDGRID_API_KEY: ${sendgridKey ? "✅ Found" : "❌ Not found"}`);
+    
+    if (sendgridKey) {
       try {
         const sgMail = require("@sendgrid/mail");
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        sgMail.setApiKey(sendgridKey);
         this.sgMail = sgMail;
-        console.log("✅ SendGrid API Key: Configured");
+        console.log("✅ SendGrid API Key: Configured and initialized");
+        console.log(`   Key preview: ${sendgridKey.substring(0, 10)}...${sendgridKey.substring(sendgridKey.length - 5)}`);
         console.log("   🚀 PRIMARY PROVIDER (Render-compatible)");
         this.provider = "sendgrid";
         console.log("================================\n");
         return;
       } catch (err) {
-        console.warn("⚠ SendGrid package not found, falling back to Gmail");
+        console.error("⚠ SendGrid package error:", err.message);
+        console.warn("⚠ Falling back to Gmail");
       }
     } else {
       console.log("⚠️  SendGrid API Key: Not configured");
@@ -127,7 +132,14 @@ class EmailService {
   async sendViaSendGrid(email, subject, htmlBody) {
     try {
       console.log("\n🔄 Attempting SendGrid...");
+      console.log(`  - Email: ${email}`);
+      console.log(`  - Subject: ${subject}`);
+      console.log(`  - API Key set: ${this.sgMail ? "Yes" : "No"}`);
       
+      if (!this.sgMail) {
+        throw new Error("SendGrid API client not initialized");
+      }
+
       const msg = {
         to: email,
         from: process.env.MAIL_USER || "noreply@shikshamitra.com",
@@ -135,10 +147,14 @@ class EmailService {
         html: htmlBody,
       };
 
+      console.log(`  - From: ${msg.from}`);
+      console.log(`  - Sending...`);
+
       const response = await this.sgMail.send(msg);
       
       console.log("✅ SendGrid: Email sent successfully!");
-      console.log(`Message ID: ${response[0].headers["x-message-id"]}`);
+      console.log(`   Message ID: ${response[0].headers["x-message-id"]}`);
+      console.log(`   Status Code: ${response[0].statusCode}`);
       console.log("─".repeat(50) + "\n");
       
       return {
@@ -147,7 +163,21 @@ class EmailService {
         messageId: response[0].headers["x-message-id"],
       };
     } catch (error) {
-      console.error("❌ SendGrid Error:", error.message);
+      console.error("\n❌ SendGrid Error:");
+      console.error(`   Message: ${error.message}`);
+      console.error(`   Code: ${error.code}`);
+      
+      // SendGrid error details
+      if (error.response) {
+        console.error(`   Response Status: ${error.response.status}`);
+        console.error(`   Response Body:`, error.response.body);
+      }
+      
+      if (error.status) {
+        console.error(`   Status: ${error.status}`);
+      }
+      
+      console.error(`   Full Error:`, error);
       throw error;
     }
   }
