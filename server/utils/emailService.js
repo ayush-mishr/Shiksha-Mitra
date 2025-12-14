@@ -74,7 +74,29 @@ class EmailService {
       if (this.provider === "sendgrid") {
         return await this.sendViaSendGrid(email, subject, htmlBody);
       } else if (this.provider === "gmail") {
-        return await this.sendViaGmail(email, subject, htmlBody);
+        try {
+          return await this.sendViaGmail(email, subject, htmlBody);
+        } catch (gmailError) {
+          // If Gmail fails with ETIMEDOUT on production (Render), try SendGrid as fallback
+          if (process.env.NODE_ENV === "production" && gmailError.code === "ETIMEDOUT") {
+            console.error("\n⚠️ Gmail SMTP failed with ETIMEDOUT (common on Render)");
+            console.error("   Attempting SendGrid fallback...");
+            
+            if (process.env.SENDGRID_API_KEY) {
+              try {
+                return await this.sendViaSendGrid(email, subject, htmlBody);
+              } catch (sgError) {
+                console.error("   ❌ SendGrid fallback also failed");
+                throw sgError;
+              }
+            } else {
+              console.error("   ❌ SendGrid not configured as fallback");
+              console.error("   💡 Solution: Add SENDGRID_API_KEY to Render environment");
+              throw gmailError;
+            }
+          }
+          throw gmailError;
+        }
       } else {
         return await this.sendViaMock(email, subject, htmlBody);
       }
@@ -133,16 +155,16 @@ class EmailService {
       
       const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST || "smtp.gmail.com",
-        port: 587, // Try port 587 first (TLS) instead of 465 (SSL)
+        port: 587,
         secure: false, // Use TLS, not SSL
         auth: {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASS,
         },
-        connectionTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 5000, // Reduced from 10000 - fail faster on Render
+        socketTimeout: 5000,    // Reduced from 10000 - fail faster on Render
         logger: true,
-        debug: true,
+        debug: process.env.DEBUG_EMAIL === "true",
       });
 
       console.log("  - Transporter created (port 587 TLS)");
