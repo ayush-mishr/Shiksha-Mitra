@@ -185,30 +185,44 @@ exports.sendotp = async (req, res) => {
   try {
     const { email } = req.body
 
+    // Validate email
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      })
+    }
+
+    console.log("\n" + "=".repeat(60))
+    console.log("📨 SENDOTP ENDPOINT CALLED")
+    console.log("=".repeat(60))
+    console.log(`Email: ${email}`)
+
     // Check if user is already present
-    // Find user with provided email
     const checkUserPresent = await User.findOne({ email })
-    // to be used in case of signup
 
     // If user found with provided email
     if (checkUserPresent) {
-      // Return 400 Bad Request status code with error message (not 401)
+      console.log("⚠️ User already registered")
       return res.status(400).json({
         success: false,
         message: `User is Already Registered`,
       })
     }
 
+    // Generate unique OTP
     var otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     })
+    
+    console.log(`1️⃣ Generated OTP: ${otp}`)
+
+    // Ensure OTP is unique
     let result = await OTP.findOne({ otp: otp })
-    console.log("Result is Generate OTP Func")
-    console.log("OTP", otp)
-    console.log("Result", result)
-    // Keep generating OTP until a unique one is found
+    console.log(`2️⃣ OTP uniqueness check:`, result ? "Duplicate" : "Unique")
+
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
@@ -217,64 +231,78 @@ exports.sendotp = async (req, res) => {
       })
       result = await OTP.findOne({ otp: otp })
     }
+
+    console.log(`3️⃣ Final OTP: ${otp}`)
+
+    // Save OTP to database
     const otpPayload = { email, otp }
     const otpBody = await OTP.create(otpPayload)
-    console.log("OTP Body", otpBody)
+    console.log(`4️⃣ OTP saved to database`)
+    console.log(`   ID: ${otpBody._id}`)
+    console.log(`   Email: ${otpBody.email}`)
+    console.log(`   OTP: ${otpBody.otp}`)
 
-    // Send OTP via email using template
+    // Send OTP via email
     let emailSent = false
+    let emailError = null
+
     try {
-      console.log(`\n${'='.repeat(60)}`)
-      console.log(`SENDING OTP EMAIL`)
-      console.log(`${'='.repeat(60)}`)
-      console.log(`Email: ${email}`)
-      console.log(`OTP: ${otp}`)
-      console.log(`Template: emailVerificationTemplate`)
+      console.log(`\n5️⃣ Attempting to send OTP email...`)
+      console.log(`   To: ${email}`)
+      console.log(`   Subject: Shiksha Mitra - Verify Your Email`)
       
       const emailResponse = await mailSender(
         email,
         "Shiksha Mitra - Verify Your Email",
         otpTemplate(otp)
       )
-      console.log("✅ Email service returned successfully")
-      console.log(`Message ID: ${emailResponse.messageId}`)
-      console.log(`Provider: ${emailResponse.response}`)
+
+      console.log(`\n✅ Email sent successfully`)
+      console.log(`   Message ID: ${emailResponse.messageId}`)
+      console.log(`   Provider: ${emailResponse.response}`)
       emailSent = true
-    } catch (emailError) {
-      console.error(`\n${'!'.repeat(60)}`)
-      console.error(`❌ EMAIL SENDING FAILED`)
-      console.error(`${'!'.repeat(60)}`)
-      console.error(`Error Message: ${emailError.message}`)
-      console.error(`Error Code: ${emailError.code}`)
-      
-      if (emailError.code === "ETIMEDOUT") {
-        console.error(`\nREASON: Connection timeout to SMTP server`)
-        console.error(`SOLUTION: Configure SendGrid API key for Render compatibility`)
-        console.error(`         OR ensure Gmail credentials are correct`)
+
+    } catch (error) {
+      console.error(`\n❌ Email sending failed`)
+      console.error(`   Error: ${error.message}`)
+      console.error(`   Code: ${error.code}`)
+      emailError = error
+
+      if (error.code === "ETIMEDOUT") {
+        console.error(`\n   🔴 TIMEOUT: Connection timeout to SMTP server`)
+        console.error(`   💡 This usually means port 587 is blocked (e.g., on Render)`)
+        console.error(`   💡 Solution: Configure SENDGRID_API_KEY in environment`)
       }
-      
-      if (emailError.message && emailError.message.includes("Invalid login")) {
-        console.error(`\nREASON: Invalid email credentials`)
-        console.error(`SOLUTION: Check MAIL_USER and MAIL_PASS in .env`)
+
+      if (error.message && error.message.includes("Invalid login")) {
+        console.error(`\n   🔴 INVALID CREDENTIALS`)
+        console.error(`   💡 Check MAIL_USER and MAIL_PASS in .env`)
       }
-      
-      console.error(`\nStack: ${emailError.stack}`)
-      console.error(`${'!'.repeat(60)}\n`)
-      
-      // Continue - OTP is saved even if email fails
-      // Frontend will show "OTP Sent" but user should check spam
-      // or we can handle this differently based on requirements
     }
 
+    console.log("\n" + "=".repeat(60))
+
+    // Send response (even if email fails, OTP was created)
     res.status(200).json({
       success: true,
-      message: `OTP Sent Successfully`,
-      otp: otp, // Include for debugging - remove in production
-      emailSent: emailSent, // Indicate if email was actually sent
+      message: emailSent 
+        ? "OTP sent successfully to your email" 
+        : "OTP generated but email sending failed. Please check logs.",
+      otp: otp, // Keep for debugging - remove in production
+      emailSent: emailSent,
+      error: emailError ? emailError.message : null,
     })
+
   } catch (error) {
-    console.log(error.message)
-    return res.status(500).json({ success: false, error: error.message })
+    console.error("\n❌ SENDOTP ERROR")
+    console.error(`   ${error.message}`)
+    console.error(`   Stack: ${error.stack}`)
+    
+    return res.status(500).json({
+      success: false,
+      message: "Error sending OTP",
+      error: error.message,
+    })
   }
 }
 

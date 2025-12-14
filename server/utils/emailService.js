@@ -238,22 +238,5 @@ class EmailService {
 // Create singleton instance
 const emailService = new EmailService();
 
-/**
- * Legacy mailSender function for backward compatibility
- */
-const mailSender = async (email, title, body) => {
-  try {
-    const result = await emailService.sendEmail(email, title, body);
-    return {
-      messageId: result.messageId,
-      response: result.provider,
-    };
-  } catch (error) {
-    // Log error but don't throw - let caller decide
-    console.error("mailSender caught error:", error.message);
-    throw error;
-  }
-};
-
-module.exports = mailSender;
+module.exports = EmailService;
 module.exports.emailService = emailService;
