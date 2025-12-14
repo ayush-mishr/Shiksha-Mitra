@@ -20,29 +20,46 @@ class EmailService {
       return;
     }
 
+    console.log("\n📧 Email Service Initialization");
+    console.log("================================");
+
     // Check for SendGrid API Key
     if (process.env.SENDGRID_API_KEY) {
       try {
         const sgMail = require("@sendgrid/mail");
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         this.sgMail = sgMail;
-        console.log("✓ Email Service: SendGrid initialized");
+        console.log("✅ SendGrid API Key: Configured");
+        console.log("   🚀 PRIMARY PROVIDER (Render-compatible)");
         this.provider = "sendgrid";
+        console.log("================================\n");
         return;
       } catch (err) {
         console.warn("⚠ SendGrid package not found, falling back to Gmail");
       }
+    } else {
+      console.log("⚠️  SendGrid API Key: Not configured");
+      console.log("   ℹ️  To fix Render issues: Add SENDGRID_API_KEY to environment");
     }
 
     // Check for Gmail credentials
     if (process.env.MAIL_USER && process.env.MAIL_PASS) {
-      console.log("✓ Email Service: Gmail SMTP initialized");
+      console.log("✅ Gmail Credentials: Configured");
+      console.log("   📍 SECONDARY (port 587 TLS - local dev preferred)");
       this.provider = "gmail";
+      console.log("================================\n");
       return;
+    } else {
+      console.log("❌ Gmail Credentials: Not configured");
     }
 
-    console.warn("⚠ Email Service: No email provider configured!");
+    console.log("\n📊 Runtime Provider Priority:");
+    console.log("1️⃣  SendGrid (API-based - recommended for Render)");
+    console.log("2️⃣  Gmail SMTP (port 587 TLS - local development)");
+    console.log("3️⃣  Mock Console (testing/debugging)");
+    console.warn("⚠ Email Service: No email provider configured! Using MOCK mode");
     this.provider = "mock";
+    console.log("================================\n");
   }
 
   async sendEmail(email, subject, htmlBody) {
@@ -113,24 +130,24 @@ class EmailService {
       
       const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST || "smtp.gmail.com",
-        port: 465,
-        secure: true,
+        port: 587, // Try port 587 first (TLS) instead of 465 (SSL)
+        secure: false, // Use TLS, not SSL
         auth: {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASS,
         },
-        connectionTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 5000,
+        socketTimeout: 5000,
       });
 
-      console.log("  - Transporter created");
+      console.log("  - Transporter created (port 587 TLS)");
       
       // Verify connection
       try {
         await transporter.verify();
         console.log("  - Connection verified");
       } catch (verifyError) {
-        console.warn(`  ⚠ Verification failed: ${verifyError.message}`);
+        console.warn(`  ⚠ Verification timeout: ${verifyError.message}`);
         console.log("  - Continuing with send attempt...");
       }
 
@@ -154,7 +171,8 @@ class EmailService {
     } catch (error) {
       console.error("❌ Gmail Error:", error.message);
       if (error.code === "ETIMEDOUT") {
-        console.error("   Hint: Port 465 connection timeout - common on restricted networks");
+        console.error("   Hint: Port 465/587 connection timeout - common on restricted networks like Render");
+        console.error("   Solution: Use SendGrid API key instead");
       }
       throw error;
     }
