@@ -224,29 +224,53 @@ exports.sendotp = async (req, res) => {
     // Send OTP via email using template
     let emailSent = false
     try {
-      console.log(`=== Sending OTP Email ===`)
+      console.log(`\n${'='.repeat(60)}`)
+      console.log(`SENDING OTP EMAIL`)
+      console.log(`${'='.repeat(60)}`)
       console.log(`Email: ${email}`)
       console.log(`OTP: ${otp}`)
-      console.log(`MAIL_USER: ${process.env.MAIL_USER}`)
+      console.log(`Template: emailVerificationTemplate`)
       
       const emailResponse = await mailSender(
         email,
         "Shiksha Mitra - Verify Your Email",
         otpTemplate(otp)
       )
-      console.log("Email sent successfully:", emailResponse.messageId)
+      console.log("✅ Email service returned successfully")
+      console.log(`Message ID: ${emailResponse.messageId}`)
+      console.log(`Provider: ${emailResponse.response}`)
       emailSent = true
     } catch (emailError) {
-      console.error("Error sending OTP email:", emailError.message)
-      console.error("Full error:", emailError)
-      // Still return success if OTP is saved in DB
-      // User can request new OTP if email fails
+      console.error(`\n${'!'.repeat(60)}`)
+      console.error(`❌ EMAIL SENDING FAILED`)
+      console.error(`${'!'.repeat(60)}`)
+      console.error(`Error Message: ${emailError.message}`)
+      console.error(`Error Code: ${emailError.code}`)
+      
+      if (emailError.code === "ETIMEDOUT") {
+        console.error(`\nREASON: Connection timeout to SMTP server`)
+        console.error(`SOLUTION: Configure SendGrid API key for Render compatibility`)
+        console.error(`         OR ensure Gmail credentials are correct`)
+      }
+      
+      if (emailError.message && emailError.message.includes("Invalid login")) {
+        console.error(`\nREASON: Invalid email credentials`)
+        console.error(`SOLUTION: Check MAIL_USER and MAIL_PASS in .env`)
+      }
+      
+      console.error(`\nStack: ${emailError.stack}`)
+      console.error(`${'!'.repeat(60)}\n`)
+      
+      // Continue - OTP is saved even if email fails
+      // Frontend will show "OTP Sent" but user should check spam
+      // or we can handle this differently based on requirements
     }
 
     res.status(200).json({
       success: true,
       message: `OTP Sent Successfully`,
       otp: otp, // Include for debugging - remove in production
+      emailSent: emailSent, // Indicate if email was actually sent
     })
   } catch (error) {
     console.log(error.message)

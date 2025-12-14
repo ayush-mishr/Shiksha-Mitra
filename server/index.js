@@ -13,11 +13,14 @@ const { cloudinaryConnect } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 
-// Setting up port number
-// const PORT = process.env.PORT || 4000;
-
 // Loading environment variables from .env file
 dotenv.config();
+
+// Initialize email service (this will log configuration status)
+const { emailService } = require("./utils/emailService");
+
+// Setting up port number
+// const PORT = process.env.PORT || 4000;
 
 // Connecting to database
 database.connect();
