@@ -127,6 +127,9 @@ class EmailService {
   async sendViaGmail(email, subject, htmlBody) {
     try {
       console.log("\n🔄 Attempting Gmail SMTP...");
+      console.log(`  - Email: ${email}`);
+      console.log(`  - Subject: ${subject}`);
+      console.log(`  - Port: 587 (TLS)`);
       
       const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST || "smtp.gmail.com",
@@ -136,8 +139,10 @@ class EmailService {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASS,
         },
-        connectionTimeout: 5000,
-        socketTimeout: 5000,
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
+        logger: true,
+        debug: true,
       });
 
       console.log("  - Transporter created (port 587 TLS)");
@@ -145,9 +150,9 @@ class EmailService {
       // Verify connection
       try {
         await transporter.verify();
-        console.log("  - Connection verified");
+        console.log("  - ✅ Connection verified successfully");
       } catch (verifyError) {
-        console.warn(`  ⚠ Verification timeout: ${verifyError.message}`);
+        console.warn(`  ⚠ Verification warning: ${verifyError.message}`);
         console.log("  - Continuing with send attempt...");
       }
 
@@ -160,7 +165,8 @@ class EmailService {
       });
 
       console.log("✅ Gmail: Email sent successfully!");
-      console.log(`Message ID: ${info.messageId}`);
+      console.log(`   Message ID: ${info.messageId}`);
+      console.log(`   To: ${email}`);
       console.log("─".repeat(50) + "\n");
       
       return {
@@ -169,11 +175,23 @@ class EmailService {
         messageId: info.messageId,
       };
     } catch (error) {
-      console.error("❌ Gmail Error:", error.message);
+      console.error("\n❌ Gmail SMTP Error");
+      console.error(`   Message: ${error.message}`);
+      console.error(`   Code: ${error.code}`);
+      
       if (error.code === "ETIMEDOUT") {
-        console.error("   Hint: Port 465/587 connection timeout - common on restricted networks like Render");
-        console.error("   Solution: Use SendGrid API key instead");
+        console.error("   🔴 Port 587 connection timeout");
+        console.error("   💡 This is common on restricted networks (Render, corporate proxies)");
+        console.error("   💡 Solution: Use SendGrid API key with port 443");
       }
+      
+      if (error.message && error.message.includes("Invalid login")) {
+        console.error("   🔴 Invalid Gmail credentials");
+        console.error("   💡 Check MAIL_USER and MAIL_PASS in .env");
+        console.error("   💡 Use app-specific password, not your main Gmail password");
+      }
+      
+      console.error(`   Full Error: ${error.code || error.message}\n`);
       throw error;
     }
   }
