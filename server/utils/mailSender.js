@@ -9,27 +9,34 @@ require("dotenv").config();
 
 const mailSender = async (email, title, body) => {
   try {
+    console.log("Starting email send to:", email);
+    
     let transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
+      service: "gmail",
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-      secure: false,
-    })
+      connectionTimeout: 10000,
+      socketTimeout: 10000,
+    });
 
+    console.log("Transporter created, sending email...");
+    
     let info = await transporter.sendMail({
-      from: `"Shiksha Mitra | Ayush mishra" <${process.env.MAIL_USER}>`, // sender address
-      to: `${email}`, // list of receivers
-      subject: `${title}`, // Subject line
-      html: `${body}`, // html body
-    })
-    console.log(info.response)
-    return info
+      from: process.env.MAIL_USER,
+      to: email,
+      subject: title,
+      html: body,
+    });
+    
+    console.log("Email sent successfully:", info.messageId);
+    return info;
   } catch (error) {
-    console.log(error.message)
-    return error.message
+    console.error("Mail sending failed:", error.message);
+    console.error("Full error:", error);
+    throw error;
   }
-}
+};
 
-module.exports = mailSender
+module.exports = mailSender;
