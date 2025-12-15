@@ -149,9 +149,9 @@ class EmailService {
         throw new Error("SendGrid API client not initialized");
       }
 
-      // Use verified SendGrid sender email
-      // IMPORTANT: This email must be verified in SendGrid sender verification
-      const fromEmail = "noreply@shikshamitra.com";
+      // Use verified SendGrid sender email - must be verified in SendGrid dashboard
+      // Use MAIL_USER which is already configured
+      const fromEmail = process.env.MAIL_USER || "noreply@shikshamitra.com";
       const msg = {
         to: email,
         from: fromEmail,
