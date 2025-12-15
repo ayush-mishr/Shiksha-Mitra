@@ -23,31 +23,36 @@ class EmailService {
     console.log("\n📧 Email Service Initialization");
     console.log("================================");
 
-    // Check for SendGrid API Key
+    // Check for SendGrid API Key - MUST BE FIRST
     const sendgridKey = process.env.SENDGRID_API_KEY;
     console.log(`   Checking SENDGRID_API_KEY: ${sendgridKey ? "✅ Found" : "❌ Not found"}`);
     
-    if (sendgridKey) {
+    if (sendgridKey && sendgridKey.startsWith("SG.")) {
       try {
         const sgMail = require("@sendgrid/mail");
         sgMail.setApiKey(sendgridKey);
         this.sgMail = sgMail;
+        this.provider = "sendgrid";
         console.log("✅ SendGrid API Key: Configured and initialized");
         console.log(`   Key preview: ${sendgridKey.substring(0, 10)}...${sendgridKey.substring(sendgridKey.length - 5)}`);
+        console.log(`   From Email: noreply@shikshamitra.com (must be verified in SendGrid)`);
         console.log("   🚀 PRIMARY PROVIDER (Render-compatible)");
-        this.provider = "sendgrid";
         console.log("================================\n");
         return;
       } catch (err) {
-        console.error("⚠ SendGrid package error:", err.message);
+        console.error("⚠ SendGrid initialization error:", err.message);
         console.warn("⚠ Falling back to Gmail");
+        this.provider = null;
       }
+    } else if (sendgridKey) {
+      console.error("⚠️  SendGrid API Key format invalid (must start with SG.)");
+      console.log("   ℹ️  Check SENDGRID_API_KEY value in environment");
     } else {
       console.log("⚠️  SendGrid API Key: Not configured");
       console.log("   ℹ️  To fix Render issues: Add SENDGRID_API_KEY to environment");
     }
 
-    // Check for Gmail credentials
+    // Check for Gmail credentials as fallback
     if (process.env.MAIL_USER && process.env.MAIL_PASS) {
       console.log("✅ Gmail Credentials: Configured");
       console.log("   📍 SECONDARY (port 587 TLS - local dev preferred)");
@@ -135,24 +140,35 @@ class EmailService {
       console.log(`  - Email: ${email}`);
       console.log(`  - Subject: ${subject}`);
       console.log(`  - API Key set: ${this.sgMail ? "Yes" : "No"}`);
+      console.log(`  - API Key value: ${process.env.SENDGRID_API_KEY ? "✅ Loaded from environment" : "❌ Missing"}`);
       
       if (!this.sgMail) {
+        console.error("  ❌ SendGrid client not initialized!");
+        console.error(`     - sgMail object: ${this.sgMail}`);
+        console.error(`     - Provider set to: ${this.provider}`);
         throw new Error("SendGrid API client not initialized");
       }
 
+      // Use verified SendGrid sender email
+      // IMPORTANT: This email must be verified in SendGrid sender verification
+      const fromEmail = "noreply@shikshamitra.com";
       const msg = {
         to: email,
-        from: process.env.MAIL_USER || "noreply@shikshamitra.com",
+        from: fromEmail,
         subject: subject,
         html: htmlBody,
       };
 
       console.log(`  - From: ${msg.from}`);
-      console.log(`  - Sending...`);
+      console.log(`  - To: ${msg.to}`);
+      console.log(`  - Subject: ${msg.subject}`);
+      console.log(`  - HTML Length: ${msg.html.length} chars`);
+      console.log(`  - Sending via SendGrid API...`);
 
       const response = await this.sgMail.send(msg);
       
       console.log("✅ SendGrid: Email sent successfully!");
+      console.log(`   Response: ${JSON.stringify(response[0])}`);
       console.log(`   Message ID: ${response[0].headers["x-message-id"]}`);
       console.log(`   Status Code: ${response[0].statusCode}`);
       console.log("─".repeat(50) + "\n");
@@ -161,23 +177,46 @@ class EmailService {
         success: true,
         provider: "sendgrid",
         messageId: response[0].headers["x-message-id"],
+        statusCode: response[0].statusCode,
       };
     } catch (error) {
       console.error("\n❌ SendGrid Error:");
       console.error(`   Message: ${error.message}`);
       console.error(`   Code: ${error.code}`);
+      console.error(`   SENDGRID_API_KEY loaded: ${process.env.SENDGRID_API_KEY ? "Yes (✅)" : "No (❌)"}`);
+      console.error(`   SENDGRID_API_KEY format valid: ${process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith("SG.") ? "Yes (✅)" : "No (❌)"}`);
       
       // SendGrid error details
       if (error.response) {
         console.error(`   Response Status: ${error.response.status}`);
-        console.error(`   Response Body:`, error.response.body);
+        
+        if (error.response.status === 401) {
+          console.error(`   ❌ 401 UNAUTHORIZED - API key is invalid or expired`);
+          console.error(`      Solution: Generate new SendGrid API key and update SENDGRID_API_KEY`);
+        } else if (error.response.status === 403) {
+          console.error(`   ❌ 403 FORBIDDEN - API key doesn't have Mail Send permission`);
+          console.error(`      Solution: Check SendGrid API key has "Mail Send" permission enabled`);
+        } else if (error.response.status === 400) {
+          console.error(`   ❌ 400 BAD REQUEST - Invalid email or request format`);
+          console.error(`      Solution: Check email address format or SendGrid configuration`);
+        } else if (error.response.status === 429) {
+          console.error(`   ❌ 429 RATE LIMITED - Too many emails sent`);
+          console.error(`      Solution: Free tier limit 100/day. Upgrade account or wait until tomorrow`);
+        }
+        
+        console.error(`   Response Headers:`, error.response.headers);
+        console.error(`   Response Body:`, JSON.stringify(error.response.body, null, 2));
       }
       
       if (error.status) {
         console.error(`   Status: ${error.status}`);
       }
       
-      console.error(`   Full Error:`, error);
+      if (error.code) {
+        console.error(`   Error Code: ${error.code}`);
+      }
+      
+      console.error("─".repeat(50) + "\n");
       throw error;
     }
   }
