@@ -1,37 +1,49 @@
 import { useState } from "react"
 import { BiArrowBack } from "react-icons/bi"
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
 import { useDispatch, useSelector } from "react-redux"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
-import { getPasswordResetToken } from "../services/operations/authAPI"
+import { getPasswordResetToken, resetPassword } from "../services/operations/authAPI"
 
 function ForgotPassword() {
   const [email, setEmail] = useState("")
   const [emailSent, setEmailSent] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { loading } = useSelector((state) => state.auth)
 
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    dispatch(getPasswordResetToken(email, setEmailSent))
+    if (!emailSent) {
+      dispatch(getPasswordResetToken(email, setEmailSent))
+    } else {
+      dispatch(resetPassword(password, confirmPassword, otp, navigate))
+    }
   }
 
   return (
-  <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526]">
+    <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526]">
       {loading ? (
         <div className="spinner"></div>
       ) : (
         <div className="max-w-[500px] p-4 lg:p-8">
           <h1 className="text-[1.875rem] font-semibold leading-[2.375rem] text-richblack-5">
-            {!emailSent ? "Reset your password" : "Check email"}
+            {!emailSent ? "Reset your password" : "Choose new password"}
           </h1>
           <p className="my-4 text-[1.125rem] leading-[1.625rem] text-richblack-100">
             {!emailSent
-              ? "Have no fear. We'll email you instructions to reset your password. If you dont have access to your email we can try account recovery"
-              : `We have sent the reset email to ${email}`}
+              ? "Have no fear. We'll email you a 6-digit OTP code to reset your password."
+              : `We have sent a 6-digit OTP code to ${email}. Enter the code below to set your new password.`}
           </p>
           <form onSubmit={handleOnSubmit}>
-            {!emailSent && (
+            {!emailSent ? (
               <label className="w-full">
                 <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
                   Email Address <sup className="text-pink-200">*</sup>
@@ -46,20 +58,99 @@ function ForgotPassword() {
                   className="form-style w-full"
                 />
               </label>
+            ) : (
+              <div className="flex flex-col gap-y-4">
+                <label className="w-full">
+                  <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                    Enter OTP Code <sup className="text-pink-200">*</sup>
+                  </p>
+                  <input
+                    required
+                    type="text"
+                    name="otp"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter 6-digit OTP"
+                    maxLength={6}
+                    className="form-style w-full text-center tracking-[4px] font-bold text-[1.125rem]"
+                  />
+                </label>
+
+                <label className="relative block">
+                  <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                    New Password <sup className="text-pink-200">*</sup>
+                  </p>
+                  <input
+                    required
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter Password"
+                    className="form-style w-full !pr-10"
+                  />
+                  <span
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-[38px] z-[10] cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <AiOutlineEyeInvisible fontSize={24} fill="#AFB2BF" />
+                    ) : (
+                      <AiOutlineEye fontSize={24} fill="#AFB2BF" />
+                    )}
+                  </span>
+                </label>
+
+                <label className="relative block">
+                  <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+                    Confirm New Password <sup className="text-pink-200">*</sup>
+                  </p>
+                  <input
+                    required
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
+                    className="form-style w-full !pr-10"
+                  />
+                  <span
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-[38px] z-[10] cursor-pointer"
+                  >
+                    {showConfirmPassword ? (
+                      <AiOutlineEyeInvisible fontSize={24} fill="#AFB2BF" />
+                    ) : (
+                      <AiOutlineEye fontSize={24} fill="#AFB2BF" />
+                    )}
+                  </span>
+                </label>
+              </div>
             )}
+            
             <button
               type="submit"
               className="mt-6 w-full rounded-[8px] bg-yellow-50 py-[12px] px-[12px] font-medium text-richblack-900"
             >
-              {!emailSent ? "Sumbit" : "Resend Email"}
+              {!emailSent ? "Submit" : "Reset Password"}
             </button>
           </form>
+          
           <div className="mt-6 flex items-center justify-between">
             <Link to="/login">
               <p className="flex items-center gap-x-2 text-richblack-5">
                 <BiArrowBack /> Back To Login
               </p>
             </Link>
+            
+            {emailSent && (
+              <button
+                className="flex items-center text-blue-100 gap-x-2 bg-transparent border-0 cursor-pointer"
+                onClick={() => dispatch(getPasswordResetToken(email, setEmailSent))}
+              >
+                Resend OTP
+              </button>
+            )}
           </div>
         </div>
       )}
