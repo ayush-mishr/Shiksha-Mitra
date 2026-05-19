@@ -26,7 +26,7 @@ function LoginForm() {
 
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    dispatch(login(email, password, navigate))
+    dispatch(login(email.trim().toLowerCase(), password, navigate))
   }
 
   return (
@@ -40,7 +40,7 @@ function LoginForm() {
         </p>
         <input
           required
-          type="text"
+          type="email"
           name="email"
           value={email}
           onChange={handleOnChange}
