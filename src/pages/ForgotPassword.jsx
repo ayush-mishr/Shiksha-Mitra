@@ -13,7 +13,7 @@ function ForgotPassword() {
 
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    dispatch(getPasswordResetToken(email.trim().toLowerCase(), setEmailSent))
+    dispatch(getPasswordResetToken(email, setEmailSent))
   }
 
   return (

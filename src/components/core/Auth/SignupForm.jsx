@@ -47,7 +47,6 @@ function SignupForm() {
     }
     const signupData = {
       ...formData,
-      email: formData.email.trim().toLowerCase(),
       accountType,
     }
 
@@ -55,7 +54,7 @@ function SignupForm() {
     // To be used after otp verification
     dispatch(setSignupData(signupData))
     // Send OTP to user for verification
-    dispatch(sendOtp(formData.email.trim().toLowerCase(), navigate))
+    dispatch(sendOtp(formData.email, navigate))
 
     // Reset
     setFormData({
