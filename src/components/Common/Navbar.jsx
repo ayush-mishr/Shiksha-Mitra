@@ -4,12 +4,12 @@ import { BsChevronDown } from "react-icons/bs"
 import { useSelector } from "react-redux"
 import { Link, matchPath, useLocation } from "react-router-dom"
 
-import logo from "../../assets/Logo/Logo-Full-Light.png"
+import logo from "../../assets/Logo/shiksha_mitra.png"
 import { NavbarLinks } from "../../data/navbar-links"
 import { apiConnector } from "../../services/apiConnector"
 import { categories } from "../../services/apis"
 import { ACCOUNT_TYPE } from "../../utils/constants"
-import ProfileDropdown from "../core/Auth/ProfileDropdown"
+import ProfileDropdown from "../core/Auth/ProfileDropDown"
 // import { verify } from "jsonwebtoken"
 
 // const subLinks = [
@@ -39,6 +39,12 @@ function Navbar() {
 
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Close mobile menu automatically when the route changes
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     (async () => {
@@ -47,22 +53,14 @@ function Navbar() {
         
         const res = await apiConnector("GET", categories.CATEGORIES_API);
         setSubLinks(res.data.data);
-        console.log("yeeee/////////......");
-        console.log( res.data.data);
-
          
       } catch (error) {
         console.log("Could not fetch Categories.", error)
        
       }
-      //  console.log("this is---",res.data.data)
       setLoading(false)
     })()
   }, [])
-
-  // console.log("sub links", subLinks)
-  
-  const [menuOpen, setMenuOpen] = useState(false)
 
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname)
@@ -151,17 +149,13 @@ function Navbar() {
             </Link>
           )}
           {token === null && (
-            <Link to="/login">
-              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
-                Log in
-              </button>
+            <Link to="/login" className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+              Log in
             </Link>
           )}
           {token === null && (
-            <Link to="/signup">
-              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
-                Sign up
-              </button>
+            <Link to="/signup" className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+              Sign up
             </Link>
           )}
           {token !== null && <ProfileDropdown />}
@@ -189,7 +183,7 @@ function Navbar() {
         <div className="absolute top-[80px] left-0 z-[1000] flex w-full flex-col bg-richblack-800 border-b border-richblack-700 py-4 px-6 md:hidden transition-all duration-200">
           <ul className="flex flex-col gap-y-4 text-richblack-25 mb-4">
             {NavbarLinks.map((link, index) => (
-              <li key={index} onClick={() => setMenuOpen(false)}>
+              <li key={index}>
                 {link.title === "Catalog" ? (
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold text-yellow-25">{link.title}</p>
@@ -225,15 +219,11 @@ function Navbar() {
           <div className="flex flex-col gap-y-3 pt-4 border-t border-richblack-700">
             {token === null && (
               <div className="flex flex-col gap-y-2">
-                <Link to="/login" onClick={() => setMenuOpen(false)}>
-                  <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
-                    Log in
-                  </button>
+                <Link to="/login" className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
+                  Log in
                 </Link>
-                <Link to="/signup" onClick={() => setMenuOpen(false)}>
-                  <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
-                    Sign up
-                  </button>
+                <Link to="/signup" className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
+                  Sign up
                 </Link>
               </div>
             )}
