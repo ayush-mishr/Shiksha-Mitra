@@ -12,42 +12,31 @@ exports.resetPasswordToken = async (req, res) => {
         message: `This Email: ${email} is not Registered With Us Enter a Valid Email `,
       })
     }
-    const token = Math.floor(100000 + Math.random() * 900000).toString()
+    const token = crypto.randomBytes(20).toString("hex")
 
     const updatedDetails = await User.findOneAndUpdate(
       { email: email },
       {
         token: token,
-        resetPasswordExpires: Date.now() + 300000,
+        resetPasswordExpires: Date.now() + 3600000,
       },
       { new: true }
     )
     console.log("DETAILS", updatedDetails)
 
+    const frontendUrl = req.headers.origin || "http://localhost:3000"
+    const url = `${frontendUrl}/update-password/${token}`
+
     await mailSender(
       email,
-      "Shiksha Mitra - Password Reset OTP",
-      `
-      <div style="font-family: sans-serif; padding: 20px; color: #333;">
-        <h2 style="color: #2c5364;">Password Reset Request</h2>
-        <p>Hello,</p>
-        <p>We received a request to reset your password for your Shiksha Mitra account.</p>
-        <p>Please use the following 6-digit One-Time Password (OTP) to reset your password:</p>
-        <div style="background-color: #1a1a1a; padding: 15px; font-size: 28px; font-weight: bold; letter-spacing: 6px; text-align: center; border-radius: 8px; margin: 20px 0; color: #FFD60A;">
-          ${token}
-        </div>
-        <p>This OTP is valid for the next 5 minutes.</p>
-        <p>If you did not request a password reset, please ignore this email.</p>
-        <hr style="border: none; border-top: 1px solid #eee;" />
-        <p style="font-size: 12px; color: #999;">Best regards,<br/>Shiksha Mitra Team</p>
-      </div>
-      `
+      "Password Reset",
+      `Your Link for email verification is ${url}. Please click this url to reset your password.`
     )
 
     res.json({
       success: true,
       message:
-        "OTP Sent Successfully, Please Check Your Email to Continue Further",
+        "Email Sent Successfully, Please Check Your Email to Continue Further",
     })
   } catch (error) {
     return res.json({

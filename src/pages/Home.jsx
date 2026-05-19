@@ -79,10 +79,10 @@ function Home() {
         </div>
 
         {/* Tech Video Banner - Now 3 videos side by side */}
-        <div className="mx-3 my-7 w-full flex flex-row gap-4 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#1FA2FF]/40 animate-fade-in">
-          <div className="w-1/3 flex-shrink-0 flex-grow-0">
+        <div className="mx-3 my-7 w-full flex flex-col md:flex-row gap-4 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#1FA2FF]/40 animate-fade-in">
+          <div className="w-full md:w-1/3 flex-shrink-0 flex-grow-0">
             <video
-              className="w-full h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
+              className="w-full h-[200px] md:h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
               muted
               loop
               autoPlay
@@ -91,9 +91,9 @@ function Home() {
               <source src={Banner} type="video/mp4" />
             </video>
           </div>
-          <div className="w-1/3 flex-shrink-0 flex-grow-0">
+          <div className="w-full md:w-1/3 flex-shrink-0 flex-grow-0">
             <video
-              className="w-full h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
+              className="w-full h-[200px] md:h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
               muted
               loop
               autoPlay
@@ -102,9 +102,9 @@ function Home() {
               <source src={Vid1} type="video/mp4" />
             </video>
           </div>
-          <div className="w-1/3 flex-shrink-0 flex-grow-0">
+          <div className="w-full md:w-1/3 flex-shrink-0 flex-grow-0">
             <video
-              className="w-full h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
+              className="w-full h-[200px] md:h-[320px] object-cover drop-shadow-[0_8px_32px_rgba(31,162,255,0.4)] rounded-xl transition-transform duration-500 hover:scale-105"
               muted
               loop
               autoPlay

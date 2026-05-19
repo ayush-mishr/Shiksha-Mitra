@@ -62,13 +62,15 @@ function Navbar() {
 
   // console.log("sub links", subLinks)
   
+  const [menuOpen, setMenuOpen] = useState(false)
+
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname)
   }
 
   return (
     <div
-      className={`flex h-[80px] items-center justify-center border-b-[1px] border-b-richblack-700 ${
+      className={`relative flex h-[80px] items-center justify-center border-b-[1px] border-b-richblack-700 ${
         location.pathname !== "/" ? "bg-richblack-800" : ""
       } transition-all duration-200`}
     >
@@ -100,9 +102,6 @@ function Navbar() {
                         ) :(subLinks.length )? (
                           <>
                             {subLinks
-                              // ?.filter(
-                              //   (subLink) => subLink?.courses?.length > 0
-                              // )
                               ?.map((subLink, i) => (
                                 <Link
                                   to={`/catalog/${subLink.name
@@ -167,13 +166,82 @@ function Navbar() {
           )}
           {token !== null && <ProfileDropdown />}
         </div>
-        <button className="mr-4 md:hidden">
-          <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
-        </button>
+        <div className="flex items-center gap-x-4 md:hidden">
+          {user && user?.accountType !== ACCOUNT_TYPE.INSTRUCTOR && (
+            <Link to="/dashboard/cart" className="relative mr-2">
+              <AiOutlineShoppingCart className="text-2xl text-richblack-100" />
+              {totalItems > 0 && (
+                <span className="absolute -bottom-2 -right-2 grid h-5 w-5 place-items-center overflow-hidden rounded-full bg-richblack-600 text-center text-xs font-bold text-yellow-100">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+          )}
+          {token !== null && <ProfileDropdown />}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="mr-4">
+            <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {menuOpen && (
+        <div className="absolute top-[80px] left-0 z-[1000] flex w-full flex-col bg-richblack-800 border-b border-richblack-700 py-4 px-6 md:hidden transition-all duration-200">
+          <ul className="flex flex-col gap-y-4 text-richblack-25 mb-4">
+            {NavbarLinks.map((link, index) => (
+              <li key={index} onClick={() => setMenuOpen(false)}>
+                {link.title === "Catalog" ? (
+                  <div className="flex flex-col gap-2">
+                    <p className="font-semibold text-yellow-25">{link.title}</p>
+                    <div className="pl-4 flex flex-col gap-2">
+                      {loading ? (
+                        <p className="text-richblack-300">Loading...</p>
+                      ) : subLinks.length ? (
+                        subLinks.map((subLink, i) => (
+                          <Link
+                            to={`/catalog/${subLink.name.split(" ").join("-").toLowerCase()}`}
+                            key={i}
+                            className="text-richblack-100 hover:text-yellow-25 py-1 block text-sm"
+                          >
+                            {subLink.name}
+                          </Link>
+                        ))
+                      ) : (
+                        <p className="text-richblack-400 text-sm">No Courses Found</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <Link to={link?.path}>
+                    <p className={matchRoute(link?.path) ? "text-blue-400 font-semibold" : "text-richblack-25"}>
+                      {link.title}
+                    </p>
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-y-3 pt-4 border-t border-richblack-700">
+            {token === null && (
+              <div className="flex flex-col gap-y-2">
+                <Link to="/login" onClick={() => setMenuOpen(false)}>
+                  <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
+                    Log in
+                  </button>
+                </Link>
+                <Link to="/signup" onClick={() => setMenuOpen(false)}>
+                  <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-900 py-2 text-richblack-100 text-center">
+                    Sign up
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
-  
 }
 
 export default Navbar

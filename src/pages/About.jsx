@@ -27,18 +27,18 @@ const About = () => {
               and nurturing a vibrant learning community.
             </p>
           </header>
-          <div className="sm:h-[70px] lg:h-[150px]"></div>
+          <div className="h-[40px] sm:h-[70px] lg:h-[150px]"></div>
           <div className="absolute bottom-0 left-[50%] grid w-[100%] translate-x-[-50%] translate-y-[30%] grid-cols-3 gap-3 lg:gap-5">
-            <img src={BannerImage1} alt="" className="h-[350px] rounded-sm shadow-pink-50 shadow-md"/>
-            <img src={BannerImage2} alt="" className="h-[350px] w-[500px] rounded-sm shadow-pink-50 shadow-md" />
-            <img src={BannerImage3} alt="" className="h-[350px] rounded-sm shadow-pink-50 shadow-md" />
+            <img src={BannerImage1} alt="" className="h-[100px] sm:h-[200px] md:h-[300px] lg:h-[350px] object-cover rounded-sm shadow-pink-50 shadow-md w-full"/>
+            <img src={BannerImage2} alt="" className="h-[100px] sm:h-[200px] md:h-[300px] lg:h-[350px] object-cover rounded-sm shadow-pink-50 shadow-md w-full" />
+            <img src={BannerImage3} alt="" className="h-[100px] sm:h-[200px] md:h-[300px] lg:h-[350px] object-cover rounded-sm shadow-pink-50 shadow-md w-full" />
           </div>
         </div>
       </section>
 
       <section className="border-b border-richblack-700">
         <div className="mx-auto flex w-11/12 max-w-maxContent flex-col justify-between gap-10 text-richblack-500">
-          <div className="h-[100px] "></div>
+          <div className="h-[40px] sm:h-[80px] md:h-[100px] lg:h-[150px] "></div>
           <Quote />
         </div>
       </section>

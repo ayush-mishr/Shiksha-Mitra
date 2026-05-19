@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet, useParams } from "react-router-dom"
+import { HiMenuAlt2 } from "react-icons/hi"
 
 import CourseReviewModal from "../components/core/ViewCourse/CourseReviewModal"
 import VideoDetailsSidebar from "../components/core/ViewCourse/VideoDetailsSidebar"
@@ -18,6 +19,7 @@ export default function ViewCourse() {
   const { token } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
   const [reviewModal, setReviewModal] = useState(false)
+  const [courseSidebarOpen, setCourseSidebarOpen] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -38,9 +40,21 @@ export default function ViewCourse() {
   return (
     <>
       <div className="relative flex min-h-[calc(100vh-3.5rem)]">
-        <VideoDetailsSidebar setReviewModal={setReviewModal} />
-        <div className="h-[calc(100vh-3.5rem)] flex-1 overflow-auto">
-          <div className="mx-6">
+        <VideoDetailsSidebar 
+          setReviewModal={setReviewModal} 
+          courseSidebarOpen={courseSidebarOpen}
+          setCourseSidebarOpen={setCourseSidebarOpen}
+        />
+        <div className="h-[calc(100vh-3.5rem)] flex-1 overflow-auto relative">
+          {/* Toggle sidebar button for mobile */}
+          <button
+            onClick={() => setCourseSidebarOpen(true)}
+            className="absolute top-4 left-4 z-40 p-2 rounded-full bg-richblack-800 border border-richblack-700 text-richblack-25 lg:hidden hover:scale-95 transition-all duration-200 shadow-md"
+            title="Show Course Outline"
+          >
+            <HiMenuAlt2 size={20} />
+          </button>
+          <div className="mx-6 pt-16 lg:pt-6">
             <Outlet />
           </div>
         </div>

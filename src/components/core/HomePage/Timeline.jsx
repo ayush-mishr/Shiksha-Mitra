@@ -67,29 +67,28 @@ const TimelineSection = () => {
             );
           })}
         </div>
-        <div className="relative w-fit h-fit shadow-blue-200 shadow-[0px_0px_30px_0px]">
-          <div className="absolute lg:left-[50%] lg:bottom-0 lg:translate-x-[-50%] lg:translate-y-[50%] bg-caribbeangreen-700 flex lg:flex-row flex-col text-white uppercase py-5 gap-4 lg:gap-0 lg:py-10 ">
+        <div className="relative w-full max-w-[500px] h-fit shadow-blue-200 shadow-[0px_0px_30px_0px] mb-20 lg:mb-0">
+          <div className="absolute left-[50%] bottom-0 translate-x-[-50%] translate-y-[50%] bg-caribbeangreen-700 flex flex-row lg:flex-row text-white uppercase py-5 gap-4 lg:gap-0 lg:py-10 rounded-lg shadow-xl z-20">
             {/* Section 1 */}
-            <div className="flex gap-5 items-center lg:border-r border-caribbeangreen-300 px-7 lg:px-14">
-              <h1 className="text-3xl font-bold w-[75px]">10</h1>
-              <h1 className="text-caribbeangreen-300 text-sm w-[75px]">
+            <div className="flex gap-5 items-center border-r border-caribbeangreen-300 px-4 sm:px-7 lg:px-14">
+              <h1 className="text-xl sm:text-3xl font-bold w-fit">10</h1>
+              <h1 className="text-caribbeangreen-300 text-xs sm:text-sm w-fit max-w-[75px]">
                 Years experiences
               </h1>
             </div>
 
             {/* Section 2 */}
-            <div className="flex gap-5 items-center lg:px-14 px-7">
-              <h1 className="text-3xl font-bold w-[75px]">250</h1>
-              <h1 className="text-caribbeangreen-300 text-sm w-[75px]">
+            <div className="flex gap-5 items-center px-4 sm:px-7 lg:px-14">
+              <h1 className="text-xl sm:text-3xl font-bold w-fit">250</h1>
+              <h1 className="text-caribbeangreen-300 text-xs sm:text-sm w-fit max-w-[75px]">
                 types of courses
               </h1>
             </div>
-            <div></div>
           </div>
           <img
             src={TimeLineImage}
             alt="timelineImage"
-            className="shadow-white shadow-[20px_20px_0px_0px] object-cover h-[600px] rounded-sm w-[500px]"
+            className="shadow-white shadow-[20px_20px_0px_0px] object-cover h-[300px] sm:h-[450px] md:h-[600px] rounded-sm w-full"
           />
         </div>
       </div>
